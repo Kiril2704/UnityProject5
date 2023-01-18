@@ -29,6 +29,6 @@ public class FDUpdate : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Collision" + Time.realtimeSinceStartup);
+       // Debug.Log("Collision" + Time.realtimeSinceStartup);
     }
 }

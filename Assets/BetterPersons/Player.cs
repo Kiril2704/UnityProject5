@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Player : BetterPerson
+public class Player : BetterPerson, IListener
 {
 
     public int Money;
@@ -12,6 +12,44 @@ public class Player : BetterPerson
     public Weapon Slot1 { get; set; }
     public Weapon Slot2 { get; set; }
     public Weapon Slot3 { get; set; }
+
+    private int _health;
+
+    public int Health
+    {
+        get { return _health; }
+        set
+        {
+            //Clamp health between 0-100
+            _health = Mathf.Clamp(value, 0, 100);
+            //Post notification - health has been changed   PostNotification call method Listener.OnEvent
+            EventManager.Instance.PostNotification(EVENT_TYPE.HEALTH_CHANGE, 
+                this, _health);
+        }
+    }
+
+
+    public void OnEvent(EVENT_TYPE Event_type, Component Sender, System.Object Param = null)
+    {
+        switch (Event_type)
+        {
+            case EVENT_TYPE.HEALTH_CHANGE:
+                OnHealthChange(Sender, (int)Param);
+                break;
+        }
+
+        //if(Event_type == EVENT_TYPE.HEALTH_CHANGE)
+        //{
+        //    OnHealthChange(Sender, (int)Param);
+        //}
+    
+    }
+
+    private void OnHealthChange(Component sender, int health)
+    {
+        Debug.Log("health was changed to " + health);
+    }
+
 
 
     private Weapon activeWeapon;
@@ -58,6 +96,8 @@ public class Player : BetterPerson
     {
         // xPrivate = 10;  // error
         xProtected = 10;
+        Debug.Log("Player");
+      
     }
 
     public Player(Weapon slot1, Weapon slot2, Weapon slot3, string name, int health, float speed,State CurrentState) : base(name, health, speed)
@@ -79,11 +119,19 @@ public class Player : BetterPerson
     //    cube2.transform.position = new Vector3(x, y, z);
     //    return cube2;
     //}
-
+    private void Awake()
+    {
+        if (Instance)
+        {
+            DestroyImmediate(gameObject);
+            return;
+        }
+        Instance = this;
+    }
     void Start()
     {
         DontDestroyOnLoad(gameObject);
-        Application.LoadLevel(1);
+        //Application.LoadLevel(1);
         
     }
 
@@ -102,6 +150,21 @@ public class Player : BetterPerson
         string description2 = Speed > 10 ? "Fast" : "Slow";
 
     }
+
+
+    void TestNull()
+    {
+        string s1 = null;
+        string s2;
+        int x;
+
+        //if (s2 == null) // error
+        //{
+        //    Debug.Log(1);
+        //}
+
+    }
+
 
 
     public void TestDoubleQuestionMark()
@@ -170,16 +233,45 @@ public class Player : BetterPerson
         // Rotate around our y-axis
         transform.Rotate(0, rotation, 0);
 
-        
+        if (Input.GetKey(KeyCode.K))
+        {
+            Application.LoadLevel(1);
+        }
+        if (Input.GetKey(KeyCode.L))
+        {
+            Application.LoadLevel(0);
+            //Debug.Log(Mathf.Clamp(-5f, 0f, 100f));
+        }
 
         //Debug.Log(state);
-        
+
 
     }
-    private void OnCollisionEnter(Collision collision)
-    {
-        Debug.Log("Collision" + Time.realtimeSinceStartup);
-        Application.LoadLevel(0);
 
-    }
+    
+
+    //public static Player Instance
+    //{
+    //    get
+    //    {
+    //        return instance;
+    //    }
+    //}
+    //public static Player Instance => instance;
+
+    //private static Player instance;
+
+
+    // version 2 
+    public static Player Instance { get; private set; }
+
+
+    //private void OnTriggerEnter(Collider other) 
+    //{
+    //    Debug.Log("Collision" + Time.realtimeSinceStartup);
+    //    Application.LoadLevel(0);
+
+    //}
+
+
 }

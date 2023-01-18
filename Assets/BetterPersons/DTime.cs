@@ -16,10 +16,10 @@ public class DTime : MonoBehaviour
     void Update()  // 500 fps Time.deltaTime = 1/500 = 0.002 sec
     {
         transform.localPosition += transform.forward * Speed * 0.3f * Time.deltaTime;
-        Debug.Log(Time.deltaTime  + "Dtime");
+        //Debug.Log(Time.deltaTime  + "Dtime");
     }
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Collision"+ Time.realtimeSinceStartup);
+        //Debug.Log("Collision"+ Time.realtimeSinceStartup);
     }
 }
