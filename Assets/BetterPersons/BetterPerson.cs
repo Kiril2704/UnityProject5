@@ -9,7 +9,7 @@ public class BetterPerson : MonoBehaviour
     protected int xProtected;
 
     public string Name = "";
-    public int Health = 100;
+    public int Health { get; set; } = 100;
     public float Speed = 10f;
     //GameObject GameObject { get; set; }
 

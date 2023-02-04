@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class Plane : MonoBehaviour
+public class Plane : MonoBehaviour 
 {
 
     
@@ -45,6 +45,8 @@ public class Plane : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+
+        
         //BetterPerson betterPerson = new BetterPerson();
         //betterPerson.xPublic = 10; // ok
         //betterPerson.xProtected = 10; // protected 
@@ -65,7 +67,54 @@ public class Plane : MonoBehaviour
         //Debug.Log(player.ToString());
         //Debug.Log(player);
         //Debug.Log(ts.ToString());
+        Player player = Player.Instance;
+        EventManagerWithoutDictionary.Instance.AddEvent(player.OnEvent);
+        EventManagerWithoutDictionary.Instance.AddEvent(betterNpc[0].OnEvent);
+        EventManagerWithoutDictionary.Instance.AddEvent(betterNpc[1].OnEvent);
+
+        player.Health = 33;
+
+        // by Interface
+        //EventManagerByInterface.Instance.AddListener(EVENT_TYPE.GAME_INIT, player);
+        //EventManagerByInterface.Instance.AddListener(EVENT_TYPE.GAME_INIT, betterNpc[0]);
+        //EventManagerByInterface.Instance.PostNotification(EVENT_TYPE.GAME_INIT, player);
+        //EventManagerByInterface.Instance.PostNotification(EVENT_TYPE.GAME_INIT, betterNpc[0]);
+
+
+        // By event
+        //EventManager.Instance.AddEvent(EVENT_TYPE.GAME_INIT, player.OnEvent);
+        //EventManager.Instance.AddEvent(EVENT_TYPE.GAME_INIT, betterNpc[0].OnEvent);
+        //EventManager.Instance.AddEvent(EVENT_TYPE.HEALTH_CHANGE, player.OnEvent);
+        //EventManager.Instance.AddEvent(EVENT_TYPE.HEALTH_CHANGE, betterNpc[0].OnEvent);
+        //EventManager.Instance.PostNotification(EVENT_TYPE.GAME_INIT, this);
+        //EventManager.Instance.PostNotification(EVENT_TYPE.GAME_INIT, this);
+
+
+        //EventManagerWithoutDictionary.Age = 10;
+        //EventManagerWithoutDictionary eventManagerWithoutDictionary = new EventManagerWithoutDictionary();
+        //eventManagerWithoutDictionary.Count = 10;
+        // eventManagerWithoutDictionary.Age = 10; // error
+        // EventManagerWithoutDictionary.Count = 10; // error
+
+
+
+        betterNpc[0].Method = Smaller;
+        // betterNpc[0].event1 = Smaller; // error
+        betterNpc[0].event1 += Smaller;
+        // bool re1 =  betterNpc[0].event1(1, 2); //error because event
+        bool re2 = betterNpc[0].Method(1, 2); // ok because delegate
+
+
+
     }
+
+
+    public bool Smaller(int x, int y)
+    {
+        if (x < y) { return false; }
+        return true;
+    }
+
 
     // Update is called once per frame
     void Update()

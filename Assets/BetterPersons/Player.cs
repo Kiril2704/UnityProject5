@@ -1,3 +1,5 @@
+
+using Hello.Table;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,18 +25,34 @@ public class Player : BetterPerson, IListener
             //Clamp health between 0-100
             _health = Mathf.Clamp(value, 0, 100);
             //Post notification - health has been changed   PostNotification call method Listener.OnEvent
-            EventManager.Instance.PostNotification(EVENT_TYPE.HEALTH_CHANGE, 
-                this, _health);
+            // EventManager.Instance.PostNotification(EVENT_TYPE.HEALTH_CHANGE,  this, _health);
+
+            EventManagerWithoutDictionary.Instance.PostNotification(EVENT_TYPE.HEALTH_CHANGE, this, _health);
+
+            Debug.Log("Set Health");
         }
     }
 
 
+    // setHealth -> PostNotification(...) -> player.OnEvent  -> OnHealthChange -> Debug.Log
+
+
+    // we need ths delegate to save player.OnEvent 
+    //  public delegate void OnEvent(EVENT_TYPE Event_Type, Component Sender, object Param = null); 
+
     public void OnEvent(EVENT_TYPE Event_type, Component Sender, System.Object Param = null)
     {
-        switch (Event_type)
+        
+        switch (Event_type) 
         {
             case EVENT_TYPE.HEALTH_CHANGE:
                 OnHealthChange(Sender, (int)Param);
+                break;
+            case EVENT_TYPE.GAME_INIT:
+                OnGameInit(Sender);
+                break;
+            case EVENT_TYPE.GAME_END:
+                OnGameEnd(Sender, (int)Param);
                 break;
         }
 
@@ -42,15 +60,22 @@ public class Player : BetterPerson, IListener
         //{
         //    OnHealthChange(Sender, (int)Param);
         //}
-    
+        Debug.Log("On Event");
     }
 
     private void OnHealthChange(Component sender, int health)
     {
-        Debug.Log("health was changed to " + health);
+        Debug.Log("health was changed to " + health);//problem
+    }
+    private void OnGameInit(Component sender)
+    {
+        Debug.Log("GAME INIT in Player");
     }
 
-
+    private void OnGameEnd(Component sender, int health)
+    {
+        Debug.Log("save player because game end");
+    }
 
     private Weapon activeWeapon;
     public Weapon ActiveWeapon {
@@ -127,13 +152,130 @@ public class Player : BetterPerson, IListener
             return;
         }
         Instance = this;
+
+        //EventManager.Instance.AddEvent(EVENT_TYPE.HEALTH_CHANGE, this.OnEvent);
+        
     }
     void Start()
     {
         DontDestroyOnLoad(gameObject);
         //Application.LoadLevel(1);
-        
+        EventManagerWithoutDictionary.Instance.PostNotification(EVENT_TYPE.GAME_INIT, this, _health);       //
+
     }
+
+    public void TestSystemObject()
+    {
+        Player player = new Player();
+        Tank tank = new Tank();
+        Plane plane = new Plane();  
+
+        System.Object[] array = new System.Object[30]; 
+        array[0] = player;  
+        array[1] = tank;
+        array[2] = plane;
+        array[3] = 3;
+        // =======
+
+        System.Object object1 = player;
+        Debug.Log(object1.ToString());
+
+        // try to invoke method Test() by object1(player) 
+        if (object1.GetType() == typeof(Player))
+        {
+            ((Player)object1).Test(); // object1.Test();
+        }
+        if (object1 is Player)
+        {
+            ((Player)object1).Test(); // object1.Test();
+        }
+        (object1 as Player)?.Test();
+
+        List<Player> list = new List<Player>(); 
+        ArrayList list2 = new ArrayList(); 
+        list2.Add(player);
+        list2.Add(tank);    
+        list2.Add(plane);   
+        list2.Add(5);
+        System.Object elementOfArray = list2[0];
+    }
+
+
+
+
+
+
+    public bool GetResult(int x, int y, out int divideResult, out int sumResult )
+    {
+        if(y == 0)
+        {
+            divideResult = 0;
+            sumResult = x + y;
+            return false;   
+        }
+        divideResult = x / y;
+        sumResult = x + y;
+        return true;
+       
+    }
+
+    public void TestGetResult()
+    {
+        bool isOk = GetResult(10, 2, out int res1, out int res2);
+        Debug.Log(isOk); // true
+        Debug.Log(res1); // 5
+    }
+
+    public void TestGetResult2()
+    {
+        int res1;
+        int res2;
+        bool isOk = GetResult(10, 2, out res1, out res2);
+        Debug.Log(isOk); // true
+        Debug.Log(res1); // 5
+    }
+
+    // ==================================================
+    //    ref
+    public bool GetResultRef(int x, int y, ref int divideResult) // ref = reference
+    {
+        if (y == 0)
+        {
+            divideResult = 0;           
+            return false;
+        }
+        divideResult = x / y;      
+        return true;
+
+    }
+
+    public void TestGetResultRef()
+    {
+        int res1 = 0;    
+        bool isOk = GetResultRef(10, 2, ref res1);
+        Debug.Log(isOk); // true
+        Debug.Log(res1); // 5
+    }
+
+    public void TestRef2()
+    {
+        string stringNumber = "12";
+        int num = int.Parse(stringNumber); // ?
+        bool isOk = int.TryParse(stringNumber, out int num2); 
+        Debug.Log(isOk); // true
+        Debug.Log(num2); // 12
+    }
+
+
+    //======================================
+
+    public void TestNamespace()
+    {
+        Hello.Table.Oak tree = new Hello.Table.Oak(); // Oak tree = new Oak(); if you write above: using Hello.Table;
+        Simple.Oak tree2 = new Simple.Oak();    
+
+    }
+
 
     public sealed override void Test()
     {
